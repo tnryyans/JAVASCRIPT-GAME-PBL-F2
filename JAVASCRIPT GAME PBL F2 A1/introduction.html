@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shark Feast - The Ultimate Underwater Predator Game</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* [Your existing CSS remains exactly the same] */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom, #34c6f3, #1a2a6c);
+      color: white;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+    
+    /* Navigation */
+    .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(0, 0, 0, 0.85);
+        padding: 10px 20px;
+        height: 60px;
+        position: relative;
+        border-bottom: 2px solid #0077b6;
+    }
+
+    .logo {
+        height: 40px;
+        cursor: pointer;
+        transition: transform 0.3s;
+    }
+    .logo:hover {
+        transform: rotate(-5deg) scale(1.05);
+    }
+
+    .menu-button {
+        background: #0077b6;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .menu-button:hover {
+        background: #005f8b;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* Sidebar */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -250px;
+        width: 250px;
+        height: 100%;
+        background: linear-gradient(to bottom, #023e8a, #012a5e);
+        display: flex;
+        flex-direction: column;
+        padding-top: 70px;
+        transition: 0.3s;
+        box-shadow: 3px 0 15px rgba(0, 0, 0, 0.4);
+        z-index: 999;
+    }
+    .sidebar a {
+        color: white;
+        text-decoration: none;
+        padding: 15px 25px;
+        font-size: 17px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s;
+        border-left: 3px solid transparent;
+    }
+    .sidebar a i {
+        margin-right: 12px;
+        font-size: 1.1rem;
+        width: 20px;
+        text-align: center;
+    }
+    .sidebar a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-left: 3px solid #34c6f3;
+        padding-left: 28px;
+    }
+    .sidebar.active {
+        left: 0;
+    }
+
+    /* Content Sections */
+    .content-section {
+      margin: 30px auto;
+      padding: 30px;
+      max-width: 900px;
+      background-color: rgba(255, 255, 255, 0.96);
+      color: #222;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    h1 {
+      color: #003f7d;
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 15px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+    h1:after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 3px;
+      background: #0077b6;
+      border-radius: 3px;
+    }
+
+    h2 {
+      color: #005f8b;
+      font-size: 1.8rem;
+      margin: 25px 0 15px;
+      padding-bottom: 5px;
+      border-bottom: 2px dashed #0077b6;
+    }
+
+    p {
+      font-size: 1.05rem;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    ul {
+      padding-left: 25px;
+      margin-bottom: 20px;
+    }
+    ul li {
+      margin-bottom: 8px;
+      color: #444;
+      position: relative;
+      padding-left: 10px;
+    }
+    ul li:before {
+      content: "•";
+      color: #0077b6;
+      font-weight: bold;
+      position: absolute;
+      left: -5px;
+    }
+
+    /* Image styling */
+    .image-container {
+      text-align: center;
+      margin: 25px 0;
+      position: relative;
+    }
+    .image-container img {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      border: 3px solid white;
+    }
+    .image-caption {
+      font-style: italic;
+      color: #666;
+      margin-top: 8px;
+      font-size: 0.9rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      background-color: #003f7d;
+      color: white;
+      margin-top: 50px;
+      position: relative;
+    }
+
+    @media screen and (max-width: 768px) {
+      .content-section {
+        padding: 20px;
+        margin: 20px 15px;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* Fun Facts Styling */
+    .fun-fact {
+      background: #f0f8ff;
+      border-left: 4px solid #0077b6;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 0 5px 5px 0;
+    }
+    .fun-fact h3 {
+      color: #005f8b;
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+  <a href="home.html">
+    <img src="sharkfeetlogo.png" alt="Shark Feast Logo" class="logo">
+  </a>
+  <button class="menu-button" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i> 
+  </button>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <a href="introduction.html"><i class="fas fa-home"></i> Introduction</a>
+  <a href="tutor.html"><i class="fas fa-gamepad"></i> How to Play</a>
+  <a href="develop.html"><i class="fas fa-code"></i>Developers</a>
+</div>
+
+<!-- White Box 1: Game Introduction -->
+<div class="content-section">
+  <h1>Welcome to Shark Feast</h1>
+  <p style="text-align: center; font-size: 1.2rem; color: #005f8b;">Become the apex predator in this underwater survival adventure</p>
+
+  <div class="image-container">
+    <img src="kakijerung.jpg" alt="Shark Feast Gameplay">
+    <div class="image-caption">Experience the thrill of the hunt in stunning underwater environments</div>
+  </div>
+
+  <div class="fun-fact">
+    <h3>Did You Know?</h3>
+    <p>The fastest shark in the ocean is the shortfin mako, which can reach speeds up to 60 mph (97 km/h) - faster than your shark's boost ability in Shark Feast!</p>
+  </div>
+</div>
+
+<!-- White Box 2: Game Overview -->
+<div class="content-section">
+  <h2>About The Game</h2>
+  <p>Shark Feast is an immersive underwater survival game where you take control of a hungry shark navigating through increasingly dangerous ocean depths. Starting as a small reef shark, you must hunt to survive, grow larger, and eventually dominate the entire ocean ecosystem.</p>
+  
+  <p>With intuitive controls and progressively challenging gameplay, Shark Feast offers:</p>
+  <ul>
+    <li><strong>Dynamic Growth System:</strong> Watch your shark evolve in real-time as you consume prey</li>
+    <li><strong>Three Distinct Zones:</strong> From sunlit coral reefs to the pitch-black abyss</li>
+    <li><strong>Epic Boss Battles:</strong> Test your skills against massive deep-sea creatures</li>
+    <li><strong>Survival Mechanics:</strong> Manage your health and energy while hunting</li>
+  </ul>
+
+  <div class="fun-fact">
+    <h3>Game Development Trivia</h3>
+    <p>The ocean zones in Shark Feast were inspired by real marine biology classifications. Developers consulted with marine biologists to create authentic underwater ecosystems.</p>
+  </div>
+</div>
+
+<!-- White Box 3: Ocean Zones -->
+<div class="content-section">
+  <h2>Explore The Ocean Depths</h2>
+  
+  <h3>Sunlit Zone (0-200m)</h3>
+  <p>The vibrant coral reefs where your journey begins. Hunt tropical fish in crystal clear waters, but beware of fishing nets and human divers!</p>
+  
+  <h3>Twilight Zone (200-1000m)</h3>
+  <p>Darker waters with mysterious creatures. Here you'll encounter larger prey and your first real predators. Use your boost ability strategically!</p>
+  
+  <h3>Midnight Zone (1000m+)</h3>
+  <p>The deepest, most dangerous part of the ocean. Only the largest sharks can survive here, where bioluminescent creatures and massive bosses await.</p>
+  
+  <div class="image-container">
+    <img src="ocean-depths.jpg" alt="Ocean depth zones in Shark Feast">
+    <div class="image-caption">Descend through increasingly dangerous ocean zones</div>
+  </div>
+
+  <div class="fun-fact">
+    <h3>Ocean Fact</h3>
+    <p>Less than 5% of Earth's oceans have been explored. Shark Feast lets you discover what might lurk in those unexplored depths!</p>
+  </div>
+</div>
+
+<!-- White Box 4: Shark Evolution -->
+<div class="content-section">
+  <h2>Shark Evolution Path</h2>
+  <p>Your shark grows through 5 distinct size classes, each with unique abilities:</p>
+  
+  <ul>
+    <li><strong>Small Shark (1-2m):</strong> Fast but fragile - stick to small fish</li>
+    <li><strong>Medium Shark (2-4m):</strong> Balanced stats - can take on jellyfish</li>
+    <li><strong>Large Shark (4-6m):</strong> Strong bite - hunts turtles and seals</li>
+    <li><strong>Giant Shark (6-8m):</strong> Massive strength - attacks small boats</li>
+    <li><strong>Megalodon (8m+):</strong> Ultimate predator - dominates all ocean life</li>
+  </ul>
+
+  <div class="fun-fact">
+    <h3>Shark Fact</h3>
+    <p>The prehistoric Megalodon could grow up to 18 meters (60 feet) long - twice the size of your in-game Megalodon! Maybe we'll add an even larger prehistoric mode in a future update.</p>
+  </div>
+</div>
+
+<!-- White Box 5: Special Features -->
+<div class="content-section">
+  <h2>Special Game Features</h2>
+  <ul>
+    <li><strong>Boost System:</strong> Temporary speed bursts to catch prey or escape danger</li>
+    <li><strong>Health Management:</strong> Your health constantly depletes - eat to survive</li>
+    <li><strong>Lasergun Unlock:</strong> Defeat the final boss to gain this powerful weapon</li>
+    <li><strong>Daily Challenges:</strong> Special objectives with bonus rewards</li>
+    <li><strong>Underwater Soundtrack:</strong> Immersive oceanic audio experience</li>
+  </ul>
+
+  <div class="fun-fact">
+    <h3>Behind the Scenes</h3>
+    <p>The lasergun was originally a joke suggestion from the development team, but players loved it during testing so much it became a permanent feature!</p>
+  </div>
+</div>
+
+<!-- White Box 6: Coming Soon -->
+<div class="content-section">
+  <h2>Coming Soon in Future Updates</h2>
+  <ul>
+    <li>Multiplayer mode - compete with other sharks online</li>
+    <li>New shark species with unique abilities</li>
+    <li>Additional ocean zones including arctic waters</li>
+    <li>Special event seasons with limited-time content</li>
+  </ul>
+
+  <div class="fun-fact">
+    <h3>Player Suggestions Welcome!</h3>
+    <p>Our most popular upcoming features were all suggested by players like you. Join our community to help shape Shark Feast's future!</p>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2025 Shark Feast. All Rights Reserved.</p>
+  <div style="margin-top: 15px;">
+    <span style="margin: 0 10px;">Follow us:</span>
+    <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-twitter"></i></a>
+    <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-facebook"></i></a>
+    <a href="#" style="color: white; margin: 0 10px;"><i class="fab fa-instagram"></i></a>
+  </div>
+</footer>
+
+<script>
+  function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.classList.toggle("active");
+    
+    if (sidebar.classList.contains("active")) {
+      const overlay = document.createElement("div");
+      overlay.id = "sidebar-overlay";
+      overlay.style.position = "fixed";
+      overlay.style.top = "0";
+      overlay.style.left = "0";
+      overlay.style.right = "0";
+      overlay.style.bottom = "0";
+      overlay.style.background = "rgba(0,0,0,0.5)";
+      overlay.style.zIndex = "998";
+      overlay.onclick = closeSidebar;
+      document.body.appendChild(overlay);
+    } else {
+      const overlay = document.getElementById("sidebar-overlay");
+      if (overlay) overlay.remove();
+    }
+  }
+
+  function closeSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.classList.remove("active");
+    const overlay = document.getElementById("sidebar-overlay");
+    if (overlay) overlay.remove();
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === "Escape") {
+      closeSidebar();
+    }
+  });
+</script>
+
+</body>
+</html>

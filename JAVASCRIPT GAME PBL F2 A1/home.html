@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shark Survival</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* General Styling */
+        body {
+            text-align: center;
+            background: url('https://cdnb.artstation.com/p/assets/images/images/049/415/459/large/shiva-arkaplann.jpg?1652436502') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            margin: 0;
+            height: 100vh;
+            overflow-x: hidden;
+            transition: margin-left 0.3s;
+        }
+
+        /* Particle Background */
+        .particle {
+            position: absolute;
+            background-color: rgba(0, 74, 124, 0.7);
+            border-radius: 50%;
+            pointer-events: none;
+            will-change: transform, opacity;
+            z-index: -1;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            height: 60px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            height: 40px;
+            cursor: pointer;
+        }
+
+        .menu-button {
+            background: #0077b6;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .menu-button:hover {
+            background: #005f8b;
+            transform: scale(1.05);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: -250px;
+            width: 250px;
+            height: calc(100% - 60px);
+            background: rgba(2, 62, 138, 0.9);
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+            transition: 0.3s;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            backdrop-filter: blur(5px);
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        /* Game Container */
+        .game-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            z-index: 50;
+            width: 90%;
+            max-width: 1000px;
+        }
+
+        #gameTitle {
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 10px rgba(0, 150, 255, 0.8);
+            animation: glow 1.5s infinite alternate;
+            margin-bottom: 20px;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(0, 150, 255, 0.8); }
+            to { text-shadow: 0 0 20px rgba(0, 200, 255, 1); }
+        }
+
+        /* Canvas (Game Frame) */
+        canvas {
+            display: none;
+            border: 4px solid #264653;
+            background: url('ocean-deep.png') no-repeat center center;
+            background-size: cover;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.3);
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Game HUD - Left Side */
+        .game-hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .hud-item {
+            font-size: 18px;
+            padding: 8px 12px;
+            background: rgba(13, 59, 102, 0.85);
+            border-radius: 6px;
+            font-weight: 600;
+            color: #f4f4f4;
+            display: none;
+            text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+            min-width: 160px;
+            text-align: left;
+            box-shadow: 0 0 8px rgba(0, 150, 199, 0.4);
+            text-transform: capitalize;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Health Bar - Right Side */
+        #health-bar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 200px;
+            height: 20px;
+            background: rgba(229, 57, 53, 0.8);
+            border-radius: 5px;
+            display: none;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(229, 57, 53, 0.7);
+            z-index: 100;
+        }
+
+        #health-inner {
+            width: 100%;
+            height: 100%;
+            background: #2a9d8f;
+            border-radius: 5px;
+            transition: width 0.3s ease-in-out;
+        }
+
+        /* Buttons */
+        .game-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(to right, #004d99, #0096c7);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 0 10px rgba(0, 150, 199, 0.5);
+            z-index: 100;
+        }
+
+        button:hover {
+            background: linear-gradient(to right, #00264d, #0077b6);
+            transform: scale(1.1);
+        }
+
+        /* Credits Popup */
+        .credits-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;
+            max-width: 90%;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.3);
+            text-align: center;
+            z-index: 300;
+            backdrop-filter: blur(5px);
+        }
+
+        .credits-content {
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .close:hover {
+            transform: rotate(90deg);
+        }
+
+        /* Hide UI when game starts */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Bullet Icons Styling */
+        #bullet-container {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(13, 59, 102, 0.85);
+            border-radius: 6px;
+            box-shadow: 0 0 8px rgba(0, 150, 199, 0.4);
+        }
+
+        .bullet-icon {
+            width: 24px;
+            height: 24px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffffff"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            filter: drop-shadow(0 0 2px rgba(255,255,255,0.7));
+        }
+
+        /* Level Notifications */
+        #levelInstruction {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            padding: 10px 20px;
+            background: rgba(13, 59, 102, 0.8);
+            border-radius: 8px;
+            font-weight: bold;
+            color: #f4f4f4;
+            display: none;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 10px rgba(0, 150, 199, 0.5);
+            z-index: 100;
+        }
+
+        #levelNote {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            padding: 15px 25px;
+            background: rgba(13, 59, 102, 0.9);
+            border-radius: 8px;
+            font-weight: bold;
+            color: yellow;
+            display: none;
+            text-align: center;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+            z-index: 200;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #gameTitle {
+                font-size: 36px;
+            }
+            
+            canvas {
+                width: 100%;
+                height: auto;
+            }
+            
+            .game-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            button {
+                width: 100%;
+            }
+            
+            #health-bar {
+                width: 150px;
+            }
+            
+            .sidebar {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #gameTitle {
+                font-size: 28px;
+            }
+            
+            .hud-item {
+                font-size: 16px;
+                min-width: 140px;
+            }
+            
+            #health-bar {
+                width: 120px;
+                height: 15px;
+            }
+        }
+       
+    /* Modified Game Frame Positioning */
+    .game-container {
+        position: absolute;
+        top: 55%; /* Moved down slightly from center */
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        z-index: 50;
+        width: 90%;
+        max-width: 1000px;
+        transition: all 0.3s ease; /* Smooth transition for resizing */
+    }
+
+    /* Fullscreen Mode */
+    .game-container.fullscreen {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        max-width: none;
+    }
+
+    .game-container.fullscreen canvas {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        border: none;
+    }
+
+    /* Hide other elements in fullscreen */
+    .game-container.fullscreen #gameTitle,
+    .game-container.fullscreen .game-buttons {
+        display: none;
+    }
+</style>
+
+<!-- Add this JavaScript to your <script> section -->
+<script>
+    // Track fullscreen state
+    let isFullscreen = false;
+
+    // Q-key toggle functionality
+    document.addEventListener('keydown', function(event) {
+        if (event.key.toLowerCase() === 'q') {
+            toggleGameFrameSize();
+        }
+    });
+
+    function toggleGameFrameSize() {
+        const gameContainer = document.querySelector('.game-container');
+        const canvas = document.getElementById('gameCanvas');
+        
+        isFullscreen = !isFullscreen;
+        
+        if (isFullscreen) {
+            gameContainer.classList.add('fullscreen');
+            // Adjust canvas size to fill container
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        } else {
+            gameContainer.classList.remove('fullscreen');
+            // Reset canvas to original size
+            canvas.width = 1000;
+            canvas.height = 600;
+        }
+        
+        // If you have game rendering logic, you might need to trigger a redraw here
+        if (window.gameRender) {
+            window.gameRender();
+        }
+    }
+
+    // Handle window resize when in fullscreen
+    window.addEventListener('resize', function() {
+        if (isFullscreen) {
+            const canvas = document.getElementById('gameCanvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Redraw if needed
+            if (window.gameRender) {
+                window.gameRender();
+            }
+        }
+    });
+</script>
+
+    </style>
+</head>
+<body>
+    <!-- Particle Background -->
+    <div id="particles"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="home.html">
+            <img src="sharkfeetlogo.png" alt="Game Logo" class="logo">
+        </a>
+        <button class="menu-button" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <a href="introduction.html"><i class="fas fa-home"></i> Introduction</a>
+        <a href="tutor.html"><i class="fas fa-gamepad"></i> How to Play</a>
+        <a href="develop.html"><i class="fas fa-code"></i> Developers</a>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container">
+        <h1 id="gameTitle">SHARK FEAST</h1>
+        <canvas id="gameCanvas" width="1000" height="600"></canvas>
+        
+        <!-- Game HUD Elements -->
+        <div class="game-hud">
+            <div id="score" class="hud-item">Score: 0</div>
+            <div id="bullet-container" class="hud-item">
+                <!-- Bullets will be added here via JavaScript -->
+            </div>
+        </div>
+        
+        <div id="health-bar">
+            <div id="health-inner"></div>
+        </div>
+        
+        <!-- Game Controls -->
+        <div class="game-buttons">
+            <button id="startButton"><i class="fas fa-play"></i> Start Game</button>
+            <button id="creditsButton"><i class="fas fa-info-circle"></i> Credits</button>
+        </div>
+        
+        <!-- Level Notifications -->
+        <div id="levelInstruction" class="hidden">Eat fish to grow bigger!</div>
+        <div id="levelNote" class="hidden"></div>
+    </div>
+
+    <!-- Credits Popup -->
+    <div id="creditsPopup" class="credits-popup">
+        <div class="credits-content">
+            <span class="close" id="closeCredits">&times;</span>
+            <h2><i class="fas fa-star"></i> Credits</h2>
+            <p><i class="fas fa-user-tie"></i> Game Developer: Aidan & Tuan</p>
+            <p><i class="fas fa-paint-brush"></i> Graphics: Tuan</p>
+            <p><i class="fas fa-code"></i> Coding: Aidan</p>
+            <p><i class="fas fa-heart"></i> Special Thanks: Madam Aishah</p>
+        </div>
+    </div>
+
+    <!-- Sound effects with fallback -->
+    <audio id="eatSound">
+        <source src="eat.mp3" type="audio/mpeg">
+        <source src="eat.ogg" type="audio/ogg">
+    </audio>
+    <audio id="levelUpSound">
+        <source src="levelup.mp3" type="audio/mpeg">
+        <source src="levelup.ogg" type="audio/ogg">
+    </audio>
+    <audio id="shootSound">
+        <source src="shootsound.mp3" type="audio/mpeg">
+        <source src="shootsound.ogg" type="audio/ogg">
+    </audio>
+    <audio id="warningSound">
+        <source src="warningSound.mp3" type="audio/mpeg">
+        <source src="warningSound.ogg" type="audio/ogg">
+    </audio>
+    <audio id="levelUpMp3">
+        <source src="level-up.mp3" type="audio/mpeg">
+        <source src="level-up.ogg" type="audio/ogg">
+    </audio>
+
+    <script>
+        // Toggle sidebar visibility
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            document.body.classList.toggle("sidebar-active");
+            sidebar.classList.toggle("active");
+        }
+
+        // Show credits popup
+        function showCredits() {
+            document.getElementById("creditsPopup").style.display = "block";
+        }
+
+        // Hide credits popup
+        function hideCredits() {
+            document.getElementById("creditsPopup").style.display = "none";
+        }
+
+        // Close popup when clicking outside
+        window.addEventListener('click', function(event) {
+            const popup = document.getElementById('creditsPopup');
+            if (event.target === popup) {
+                hideCredits();
+            }
+        });
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById("creditsButton").addEventListener("click", showCredits);
+            document.getElementById("closeCredits").addEventListener("click", hideCredits);
+            
+            // Initialize bullet container
+            updateAmmoUI(0);
+            
+            // Initialize particle background
+            createParticleBackground();
+        });
+
+        // Update bullet icons display
+        function updateAmmoUI(ammoCount) {
+            const container = document.getElementById('bullet-container');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < ammoCount; i++) {
+                const bullet = document.createElement('div');
+                bullet.className = 'bullet-icon';
+                container.appendChild(bullet);
+            }
+            
+            // Show/hide container based on ammo count
+            container.style.display = ammoCount > 0 ? 'flex' : 'none';
+        }
+        
+        // Create particle background effect
+        function createParticleBackground() {
+            const particleCount = 100;
+            const colors = [
+                'rgba(0, 40, 85, 0.8)',    // Dark blue
+                'rgba(0, 60, 120, 0.7)',   // Medium dark blue
+                'rgba(0, 90, 150, 0.6)'    // Lighter dark blue
+            ];
+            
+            // Create particles
+            for (let i = 0; i < particleCount; i++) {
+                createParticle();
+            }
+            
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random properties
+                const size = Math.random() * 10 + 5;
+                const startX = Math.random() * window.innerWidth;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Set initial properties
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.backgroundColor = color;
+                particle.style.left = `${startX}px`;
+                particle.style.bottom = `-${size}px`;
+                particle.style.opacity = '0';
+                
+                document.body.appendChild(particle);
+                
+                // Animation
+                const duration = Math.random() * 15000 + 5000; // 5-20 seconds
+                const endY = window.innerHeight + size;
+                const endX = startX + (Math.random() * 200 - 100); // Slight horizontal movement
+                
+                // Animate particle
+                particle.animate([
+                    { 
+                        transform: `translate(0, 0)`,
+                        opacity: 0
+                    },
+                    { 
+                        transform: `translate(0, -${endY}px) translateX(${endX - startX}px)`,
+                        opacity: 0.8
+                    },
+                    { 
+                        transform: `translate(0, -${endY}px) translateX(${endX - startX}px)`,
+                        opacity: 0
+                    }
+                ], {
+                    duration: duration,
+                    easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                    fill: 'forwards'
+                }).onfinish = () => {
+                    // Reset particle when animation completes
+                    particle.style.bottom = `-${size}px`;
+                    particle.style.left = `${Math.random() * window.innerWidth}px`;
+                    particle.animate([
+                        { 
+                            transform: `translate(0, 0)`,
+                            opacity: 0
+                        },
+                        { 
+                            transform: `translate(0, -${endY}px) translateX(${Math.random() * 200 - 100}px)`,
+                            opacity: 0.8
+                        },
+                        { 
+                            transform: `translate(0, -${endY}px)`,
+                            opacity: 0
+                        }
+                    ], {
+                        duration: duration,
+                        easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                        fill: 'forwards'
+                    });
+                };
+            }
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                const particles = document.querySelectorAll('.particle');
+                particles.forEach(particle => {
+                    particle.style.left = `${Math.random() * window.innerWidth}px`;
+                });
+            });
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
+<audio id="backgroundMusic" preload="auto">
+    <source src="sounds/background.mp3" type="audio/mpeg">
+    <source src="sounds/background.ogg" type="audio/ogg">
+  </audio>
+  
